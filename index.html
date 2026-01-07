@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Κουίζ: Ο Μύθος της Φθίας</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 3px solid #d4af37;
+            margin-top: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            color: #d4af37;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            color: #e8c878;
+            font-weight: normal;
+        }
+
+        .question-container {
+            background-color: rgba(26, 42, 58, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-number {
+            color: #d4af37;
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 1.8rem;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            background-color: rgba(52, 73, 94, 0.9);
+            border: 2px solid #3a506b;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover:not(.disabled) {
+            background-color: rgba(67, 97, 133, 0.9);
+            border-color: #d4af37;
+            transform: translateY(-3px);
+        }
+
+        .option.selected {
+            background-color: rgba(41, 128, 185, 0.8);
+            border-color: #3498db;
+        }
+
+        .option.correct {
+            background-color: rgba(46, 204, 113, 0.8);
+            border-color: #27ae60;
+        }
+
+        .option.incorrect {
+            background-color: rgba(231, 76, 60, 0.8);
+            border-color: #c0392b;
+        }
+
+        .option.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+
+        .option-letter {
+            background-color: #2c3e50;
+            color: #f5f5f5;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-letter {
+            background-color: #2980b9;
+        }
+
+        .option.correct .option-letter {
+            background-color: #27ae60;
+        }
+
+        .option.incorrect .option-letter {
+            background-color: #c0392b;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 1.4rem;
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .feedback.correct {
+            background-color: rgba(46, 204, 113, 0.2);
+            border: 2px solid #27ae60;
+            color: #a8ffc9;
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(231, 76, 60, 0.2);
+            border: 2px solid #c0392b;
+            color: #ffb8b3;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+
+        .btn-next {
+            background-color: #d4af37;
+            color: #2c3e50;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            background-color: #e8c878;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-restart {
+            background-color: #3a506b;
+            color: #f5f5f5;
+        }
+
+        .btn-restart:hover {
+            background-color: #4a6a8b;
+            transform: translateY(-3px);
+        }
+
+        .btn-back {
+            background-color: #2c3e50;
+            color: #f5f5f5;
+        }
+
+        .btn-back:hover:not(:disabled) {
+            background-color: #3a506b;
+            transform: translateY(-3px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .results-title {
+            font-size: 3rem;
+            color: #d4af37;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+        }
+
+        .score-display {
+            font-size: 5rem;
+            color: #ffffff;
+            margin: 30px 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: inline-block;
+            padding: 20px 50px;
+            border-radius: 20px;
+            border: 4px solid #d4af37;
+        }
+
+        .score-text {
+            font-size: 2rem;
+            color: #e8c878;
+            margin-bottom: 40px;
+        }
+
+        .message {
+            font-size: 1.8rem;
+            color: #ffffff;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .answers-summary {
+            text-align: left;
+            margin-top: 30px;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 25px;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .answer-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #ddd;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .answer-item.correct {
+            border-left-color: #27ae60;
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+
+        .answer-item.incorrect {
+            border-left-color: #c0392b;
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+
+        .correct-answer-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #27ae60;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 20px;
+                margin-top: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .question-text {
+                font-size: 1.5rem;
+            }
+            
+            .option {
+                font-size: 1.2rem;
+                padding: 15px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 1.2rem;
+            }
+            
+            .results-title {
+                font-size: 2.2rem;
+            }
+            
+            .score-display {
+                font-size: 3.5rem;
+                padding: 15px 30px;
+            }
+            
+            .score-text {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Κουίζ: Ο Μύθος της Φθίας</h1>
+            <h2>Το Έπος του Αχιλλέα και των Μυρμιδόνων</h2>
+        </div>
+        
+        <div id="game-area">
+            <div class="question-container">
+                <div class="question-number">Ερώτηση <span id="question-num">1</span> από 20</div>
+                <div class="question-text" id="question-text"></div>
+                
+                <div class="options-container" id="options-container">
+                    <!-- Οι επιλογές θα εμφανίζονται εδώ μέσω JavaScript -->
+                </div>
+                
+                <div class="feedback" id="feedback"></div>
+            </div>
+            
+            <div class="buttons-container">
+                <button class="btn btn-back" id="home-btn" onclick="window.location.href='https://conchr.github.io/Myth/'">
+                    <i class="fas fa-home"></i> Αρχική
+                </button>
+                <button class="btn btn-back" id="prev-btn" disabled>
+                    <i class="fas fa-arrow-left"></i> Προηγούμενη
+                </button>
+                <button class="btn btn-next" id="next-btn">
+                    Επόμενη <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-next" id="submit-btn" style="display: none;">
+                    Υποβολή Απαντήσεων <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="results-container" id="results-container">
+            <div class="results-title">Αποτελέσματα Κουίζ</div>
+            <div class="score-display" id="final-score">0/20</div>
+            <div class="score-text" id="score-text"></div>
+            
+            <div class="message" id="result-message"></div>
+            
+            <div id="answers-summary" class="answers-summary" style="display: none;">
+                <h3 style="color: #d4af37; margin-bottom: 20px; text-align: center;">Ανάλυση Απαντήσεων</h3>
+                <div id="answers-list"></div>
+            </div>
+            
+            <div class="buttons-container" style="justify-content: center; margin-top: 40px;">
+                <button class="btn btn-restart" id="restart-btn">
+                    <i class="fas fa-redo"></i> Παίξτε ξανά
+                </button>
+                <button class="btn btn-back" id="show-answers-btn">
+                    <i class="fas fa-list"></i> Προβολή Απαντήσεων
+                </button>
+                <button class="btn btn-back" id="home-btn-2" onclick="window.location.href='https://conchr.github.io/Myth/'">
+                    <i class="fas fa-home"></i> Αρχική
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Στοιχεία του παιχνιδιού
+        const gameArea = document.getElementById('game-area');
+        const resultsContainer = document.getElementById('results-container');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedback = document.getElementById('feedback');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const questionNumElement = document.getElementById('question-num');
+        const finalScoreElement = document.getElementById('final-score');
+        const scoreTextElement = document.getElementById('score-text');
+        const resultMessageElement = document.getElementById('result-message');
+        const restartBtn = document.getElementById('restart-btn');
+        const showAnswersBtn = document.getElementById('show-answers-btn');
+        const answersSummary = document.getElementById('answers-summary');
+        const answersList = document.getElementById('answers-list');
+
+        // Μεταβλητές του παιχνιδιού
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let selectedOption = null;
+        let gameCompleted = false;
+        let userAnswers = new Array(20).fill(null);
+        let questionsAnswered = new Array(20).fill(false);
+
+        // Βάση δεδομένων ερωτήσεων για τον Μύθο της Φθίας
+        const questions = [
+            {
+                question: "Γιατί ο Πηλέας κατέφυγε στη Φθία;",
+                options: [
+                    "Ήταν εξόριστος επειδή ηττήθηκε σε πόλεμο.",
+                    "Επόπτευε την κατασκευή ενός νέου παλατιού.",
+                    "Κυνηγήθηκε από τη μοίρα, έχοντας σκοτώσει τον αδελφό του.",
+                    "Ακολουθούσε έναν χρησμό για να βρει έναν κρυμμένο θησαυρό."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Ο Πηλέας κατέφυγε στη Φθία κυνηγημένος από τη μοίρα, αφού είχε σκοτώσει τον αδελφό του."
+            },
+            {
+                question: "Ποιος ήταν ο λαός που έφερε μαζί του ο Πηλέας στη Φθία;",
+                options: [
+                    "Οι Τρώες.",
+                    "Οι Μυρμιδόνες.",
+                    "Οι Αθηναίοι.",
+                    "Οι Αργείοι."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Ο Πηλέας έφερε μαζί του τους Μυρμιδόνες, έναν λαό που δημιουργήθηκε από μυρμήγκια μεταμορφωμένα σε ανθρώπους."
+            },
+            {
+                question: "Πώς δημιουργήθηκαν οι Μυρμιδόνες, σύμφωνα με τον θρύλο;",
+                options: [
+                    "Από τους βράχους που χτύπησε ο Ποσειδώνας με την τρίαινά του.",
+                    "Ο Δίας μετέτρεψε τα μυρμήγκια της Αίγινας σε ανθρώπους.",
+                    "Είναι απόγονοι των Τιτάνων που επέζησαν.",
+                    "Γεννήθηκαν από το αίμα του Ουρανού."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Σύμφωνα με τον θρύλο, ο Δίας μετέτρεψε τα μυρμήγκια της Αίγινας σε ανθρώπους για να κατοικήσουν το έρημο νησί."
+            },
+            {
+                question: "Γιατί η Νηρηίδα Θέτιδα αναγκάστηκε να παντρευτεί έναν θνητό, τον Πηλέα;",
+                options: [
+                    "Γιατί οι θεοί φοβήθηκαν ότι ο γιος της θα ήταν ισχυρότερος από τον πατέρα του.",
+                    "Γιατί ο Πηλέας είχε κλέψει τα μυστικά της αθανασίας.",
+                    "Γιατί έπρεπε να τιμωρηθεί για κακοποιητική πράξη.",
+                    "Γιατί το ζήτησε ο ίδιος ο Δίας ως ανταμοιβή για τη γενναιότητά του."
+                ],
+                correct: 0,
+                explanation: "Σωστά! Ένας χρησμός προείπε ότι η Θέτιδα θα γεννούσε έναν γιο που θα ξεπερνούσε σε δύναμη τον πατέρα του, γι' αυτό οι θεοί την ανάγκασαν να παντρευτεί θνητό."
+            },
+            {
+                question: "Πού έλαβε χώρα ο πολυτελής γάμος του Πηλέα και της Θέτιδας;",
+                options: [
+                    "Στην κορυφή του Ολύμπου.",
+                    "Στο Χειρώνιον Άντρον του Πηλίου.",
+                    "Στις ακτές της Σκύρου.",
+                    "Στο ιερό της Δωδώνης."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Ο γάμος τελέστηκε στο Χειρώνιον Άντρον του Πηλίου, και ήταν η τελευταία φορά που θεοί και άνθρωποι κάθισαν στο ίδιο τραπέζι."
+            },
+            {
+                question: "Πώς προσπάθησε να κάνει τον Αχιλλέα αθάνατη η Θέτιδα, σύμφωνα με την τοπική παράδοση των Φαρσάλων;",
+                options: [
+                    "Τον έβαλε στον φούρνο του Ηφαίστου.",
+                    "Τον τάιζε με αμβροσία και νέκταρ.",
+                    "Τον βούτηξε στα νερά του ποταμού Απιδανού, κρατώντας τον από τη φτέρνα.",
+                    "Τον πήγε στον Ολυμπιακό Οίκο για να τον ευλογήσουν όλοι οι θεοί."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Σύμφωνα με την παράδοση των Φαρσάλων, η Θέτιδα βούτηξε το βρέφος Αχιλλέα στα νερά του Απιδανού, κρατώντας τον από τη φτέρνα."
+            },
+            {
+                question: "Ποιο είναι το αποτέλεσμα της τελετής της αθανασίας, που έγινε με τον Απιδανό ποταμό;",
+                options: [
+                    "Ο Αχιλλέας έγινε τελείως άτρωτος.",
+                    "Μόνο η φτέρνα του («Αχίλλειος Πτέρνα») έμεινε ευάλωτη.",
+                    "Η θεά απέκτησε μια μαγική ασπίδα για να τον προστατεύει.",
+                    "Ο ποταμός έγινε ιερός και θεραπευτικός."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Η φτέρνα που έμεινε στεγνή έγινε η «Αχίλλειος Πτέρνα», η μοναδική ευάλωτη περιοχή του Αχιλλέα."
+            },
+            {
+                question: "Ποιος ήταν ο πρώτος μεγάλος δάσκαλος του Αχιλλέα;",
+                options: [
+                    "Ο Φοίνικας.",
+                    "Ο σοφός Κένταυρος Χείρωνας.",
+                    "Ο βασιλιάς Ευρυτίωνας.",
+                    "Ο ίδιος ο Πηλέας."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Ο Πηλέας εμπιστεύτηκε τον Αχιλλέα στον Κένταυρο Χείρωνας, ο οποίος τον δίδαξε ιατρική, μουσική και υπομονή."
+            },
+            {
+                question: "Τι του δίδαξε ο Χείρωνας;",
+                options: [
+                    "Μόνο τις πολεμικές τέχνες.",
+                    "Την ιατρική, τη μουσική και την υπομονή.",
+                    "Την αστρονομία και τη μάντευση.",
+                    "Την τέχνη της ναυπηγικής."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Ο Χείρωνας δίδαξε στον Αχιλλέα την τέχνη της ιατρικής, τη μουσική της λύρας και τη δύναμη της υπομονής."
+            },
+            {
+                question: "Ποιος ήταν ο «δεύτερος πατέρας» του Αχιλλέα στο παλάτι της Φθίας;",
+                options: [
+                    "Ο Πάτροκλος.",
+                    "Ο Αγαμέμνονας.",
+                    "Ο Φοίνικας.",
+                    "Ο Ευρυτίωνας."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Ο Φοίνικας, ο εξόριστος γέροντας που ο Πηλέας είχε κάνει σαν γιο του, έγινε ο δεύτερος πατέρας του Αχιλλέα."
+            },
+            {
+                question: "Ποιος ήταν ο Πάτροκλος για τον Αχιλλέα;",
+                options: [
+                    "Ο θείος του.",
+                    "Ο ανταγωνιστής και αντίπαλός του.",
+                    "Ο πιστός σύντροφος και φίλος του.",
+                    "Ο σωματοφύλακάς του."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Ο Πάτροκλος ήταν ο πιστός σύντροφος του Αχιλλέα, με τον οποίο δημιούργησαν έναν δεσμό που ούτε ο θάνατος δεν μπορούσε να σπάσει."
+            },
+            {
+                question: "Ποια ήταν η μοίρα του Αχιλλέα όταν έφυγε από τη Φθία για την Τροία;",
+                options: [
+                    "Γνώριζε ότι δεν θα ξαναέβλεπε ποτέ τη Φθία.",
+                    "Ήλπιζε να επιστρέψει ως νικητής και να κυβερνήσει.",
+                    "Ο χρησμός έλεγε ότι θα επέστρεφε με το αίμα των Τρώων.",
+                    "Έπρεπε να παντρευτεί πριν φύγει για να αφήσει διάδοχο."
+                ],
+                correct: 0,
+                explanation: "Σωστά! Ο Αχιλλέας ήξερε πως αν έφευγε για την Τροία, δεν θα ξαναέβλεπε ποτέ τη Φθία."
+            },
+            {
+                question: "Τι συμβολίζει το γιγάντιο μυρμήγκι στην είσοδο των Φαρσάλων;",
+                options: [
+                    "Την εργατικότητα των κατοίκων.",
+                    "Το στρατό των Μυρμιδόνων του Αχιλλέα.",
+                    "Το σημάδι της θεάς Δήμητρας.",
+                    "Το οικόσημο της οικογένειας του Πηλέα."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Το γιγάντιο μυρμήγκι στα Φάρσαλα συμβολίζει τον στρατό των Μυρμιδόνων του Αχιλλέα."
+            },
+            {
+                question: "Ποιο από τα παρακάτω ΔΕΝ αναφέρεται ως μέρος της κληρονομιάς του μύθου στα σημερινά Φάρσαλα;",
+                options: [
+                    "Το άγαλμα της Θέτιδας στον Απιδανό.",
+                    "Το βλέμμα του Αχιλλέα στην πλατεία.",
+                    "Το σπαθί του Αχιλλέα στο Αρχαιολογικό Μουσείο.",
+                    "Οι κάτοικοι ως απόγονοι των Μυρμιδόνων."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Το σπαθί του Αχιλλέα στο Αρχαιολογικό Μουσείο ΔΕΝ αναφέρεται στο κείμενο ως μέρος της κληρονομιάς του μύθου στα σημερινά Φάρσαλα."
+            },
+            {
+                question: "Σύμφωνα με το κείμενο, από πού ξεκινά η ιστορία του λαού των Φαρσάλων;",
+                options: [
+                    "Από τις μάχες των Τιτάνων.",
+                    "Από τα χέρια ενός Κενταύρου και την αγκαλιά μιας θεάς.",
+                    "Από τις αποφάσεις της Δελφικής Πυθίας.",
+                    "Από την ίδρυση της πρώτης πόλης από τον Δευκαλίωνα."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Η ιστορία του λαού των Φαρσάλων ξεκινά από τα χέρια ενός Κενταύρου (Χείρωνα) και την αγκαλιά μιας θεάς (Θέτιδας)."
+            },
+            {
+                question: "Τι έκανε ο Πηλέας όταν συνάντησε τη Θέτιδα στις ακτές, σύμφωνα με τη συμβουλή του Χείρωνα;",
+                options: [
+                    "Της πρόσφερε δώρα και τραγούδησε.",
+                    "Την άρπαξε και την κράτησε σφιχτά, παρόλες τις μεταμορφώσεις της.",
+                    "Την παρακάλεσε να τον παντρευτεί για χάρη του Δία.",
+                    "Την πρόσβαλε για να δει αν θα αντιδρούσε."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Ο Πηλέας, ακολουθώντας τη συμβουλή του Χείρωνα, άρπαξε τη Θέτιδα και την κράτησε σφιχτά, παρόλο που αυτή μεταμορφωνόταν σε διάφορα ζώα και στοιχεία."
+            },
+            {
+                question: "Ποιος θεός τραγούδησε για τον μελλοντικό γιο (Αχιλλέα) στον γάμο του Πηλέα και της Θέτιδας;",
+                options: [
+                    "Ο Απόλλωνας.",
+                    "Ο Ερμής.",
+                    "Ο Όρφευς (ως καλεσμένος).",
+                    "Οι Μούσες ως χορωδία."
+                ],
+                correct: 0,
+                explanation: "Σωστά! Ο Απόλλωνας τραγούδησε για τον ένδοξο γιο (Αχιλλέα) που θα ερχόταν, παραλείποντας όμως να αναφέρει το τίμημα αυτής της δόξας."
+            },
+            {
+                question: "Ποιος ήταν ο βασιλιάς της Φθίας που δέχτηκε τον Πηλέα;",
+                options: [
+                    "Ο Αγαμέμνονας.",
+                    "Ο Αίακας.",
+                    "Ο Ευρυτίωνας.",
+                    "Ο Μενέλαος."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Ο βασιλιάς Ευρυτίωνας δέχτηκε τον Πηλέα στο παλάτι του στη Φθία και του προσέφερε καταφύγιο."
+            },
+            {
+                question: "Ποιο ήταν το κύριο χαρακτηριστικό των Μυρμιδόνων;",
+                options: [
+                    "Είχαν μακριά ξανθά μαλλιά.",
+                    "Ήταν εργατικοί στη γη και αδυσώπητοι στον πόλεμο.",
+                    "Μιλούσαν μια μυστική γλώσσα.",
+                    "Ζούσαν αποκλειστικά από το εμπόριο."
+                ],
+                correct: 1,
+                explanation: "Σωστά! Οι Μυρμιδόνες ήταν εργατικοί στη γη και αδυσώπητοι στον πόλεμο, σύμφωνα με τον θρύλο που έλεγε πως προέκυψαν από μυρμήγκια."
+            },
+            {
+                question: "Τι συμβολίζει ο Απιδανός ποταμός για τον μύθο, σύμφωνα με το κείμενο;",
+                options: [
+                    "Την απέχθεια των θεών για τους θνητούς.",
+                    "Τη δύναμη της φωτιάς για την κάθαρση.",
+                    "Τον αιώνιο μάρτυρα της προσπάθειας της Θέτιδας να κάνει το παιδί της αθάνατο.",
+                    "Το όριο ανάμεσα στον κόσμο των ζωντανών και των νεκρών."
+                ],
+                correct: 2,
+                explanation: "Σωστά! Ο Απιδανός παραμένει ο αιώνιος μάρτυρας εκείνης της απελπισμένης προσπάθειας της Θέτιδας να κρατήσει το παιδί της για πάντα κοντά της."
+            }
+        ];
+
+        // Αρχικοποίηση του παιχνιδιού
+        function initGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            gameCompleted = false;
+            userAnswers = new Array(questions.length).fill(null);
+            questionsAnswered = new Array(questions.length).fill(false);
+            
+            gameArea.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            answersSummary.style.display = 'none';
+            
+            showQuestion();
+        }
+
+        // Εμφάνιση της τρέχουσας ερώτησης
+        function showQuestion() {
+            const q = questions[currentQuestionIndex];
+            questionText.textContent = q.question;
+            questionNumElement.textContent = currentQuestionIndex + 1;
+            
+            // Καθαρισμός προηγούμενων επιλογών
+            optionsContainer.innerHTML = '';
+            feedback.style.display = 'none';
+            feedback.className = 'feedback';
+            nextBtn.disabled = true;
+            submitBtn.disabled = true;
+            selectedOption = null;
+            
+            // Ενημέρωση κουμπιών
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'flex';
+            } else {
+                nextBtn.style.display = 'flex';
+                submitBtn.style.display = 'none';
+            }
+            
+            // Προσθήκη των επιλογών
+            const letters = ['Α', 'Β', 'Γ', 'Δ'];
+            q.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                if (questionsAnswered[currentQuestionIndex]) {
+                    optionElement.classList.add('disabled');
+                }
+                optionElement.innerHTML = `
+                    <div class="option-letter">${letters[index]}</div>
+                    <div class="option-text">${option}</div>
+                `;
+                
+                // Εάν η ερώτηση έχει ήδη απαντηθεί, δείχνουμε τις σωστές/λάθος απαντήσεις
+                if (questionsAnswered[currentQuestionIndex]) {
+                    if (index === q.correct) {
+                        optionElement.classList.add('correct');
+                        const correctIndicator = document.createElement('div');
+                        correctIndicator.className = 'correct-answer-indicator';
+                        correctIndicator.textContent = '✓';
+                        optionElement.appendChild(correctIndicator);
+                    }
+                    
+                    if (userAnswers[currentQuestionIndex] === index && index !== q.correct) {
+                        optionElement.classList.add('incorrect');
+                    }
+                } else {
+                    optionElement.addEventListener('click', () => selectOption(index, optionElement));
+                }
+                
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Εμφάνιση ανατροφοδότησης αν η ερώτηση έχει απαντηθεί
+            if (questionsAnswered[currentQuestionIndex]) {
+                showFeedback();
+            }
+        }
+
+        // Επιλογή απάντησης από τον χρήστη
+        function selectOption(optionIndex, optionElement) {
+            if (questionsAnswered[currentQuestionIndex]) return;
+            
+            const q = questions[currentQuestionIndex];
+            const allOptions = document.querySelectorAll('.option');
+            
+            // Αφαίρεση προηγούμενης επιλογής
+            allOptions.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Επισήμανση της επιλεγμένης απάντησης
+            optionElement.classList.add('selected');
+            selectedOption = optionIndex;
+            userAnswers[currentQuestionIndex] = optionIndex;
+            questionsAnswered[currentQuestionIndex] = true;
+            
+            // Απενεργοποίηση όλων των επιλογών
+            allOptions.forEach(opt => {
+                opt.classList.add('disabled');
+                opt.removeEventListener('click', selectOption);
+            });
+            
+            // Έλεγχος της απάντησης
+            if (optionIndex === q.correct) {
+                optionElement.classList.add('correct');
+                feedback.textContent = `✅ Σωστό! ${q.explanation}`;
+                feedback.classList.add('correct');
+                feedback.style.display = 'block';
+                score += 5;
+                correctAnswers++;
+            } else {
+                optionElement.classList.add('incorrect');
+                
+                // Επισήμανση της σωστής απάντησης
+                allOptions[q.correct].classList.add('correct');
+                const correctIndicator = document.createElement('div');
+                correctIndicator.className = 'correct-answer-indicator';
+                correctIndicator.textContent = '✓';
+                allOptions[q.correct].appendChild(correctIndicator);
+                
+                feedback.textContent = `❌ Λάθος! ${q.explanation}`;
+                feedback.classList.add('wrong');
+                feedback.style.display = 'block';
+            }
+            
+            // Ενεργοποίηση των κουμπιών
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+            submitBtn.disabled = false;
+            
+            // Εάν βρισκόμαστε στην τελευταία ερώτηση, ενεργοποιούμε το κουμπί Υποβολή
+            if (currentQuestionIndex === questions.length - 1) {
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Εμφάνιση ανατροφοδότησης για την τρέχουσα ερώτηση
+        function showFeedback() {
+            const q = questions[currentQuestionIndex];
+            const userAnswer = userAnswers[currentQuestionIndex];
+            
+            if (userAnswer === null) return;
+            
+            const isCorrect = userAnswer === q.correct;
+            
+            feedback.textContent = isCorrect ? 
+                `✅ Σωστό! ${q.explanation}` : 
+                `❌ Λάθος! ${q.explanation}`;
+            
+            feedback.className = isCorrect ? 'feedback correct' : 'feedback wrong';
+            feedback.style.display = 'block';
+        }
+
+        // Επόμενη ερώτηση
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        // Προηγούμενη ερώτηση
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        // Υποβολή απαντήσεων
+        function submitAnswers() {
+            // Βεβαιωνόμαστε ότι όλες οι ερωτήσεις έχουν απαντηθεί
+            const allAnswered = questionsAnswered.every(answer => answer === true);
+            if (!allAnswered) {
+                alert("Πρέπει να απαντήσετε όλες τις ερωτήσεις πριν υποβάλετε!");
+                return;
+            }
+            
+            endGame();
+        }
+
+        // Τερματισμός του παιχνιδιού και εμφάνιση αποτελεσμάτων
+        function endGame() {
+            gameCompleted = true;
+            gameArea.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            const percentage = Math.round((correctAnswers / questions.length) * 100);
+            finalScoreElement.textContent = `${score}/${questions.length * 5}`;
+            scoreTextElement.textContent = `Απαντήσατε σωστά ${correctAnswers} από τις ${questions.length} ερωτήσεις (${percentage}%)`;
+            
+            // Προσαρμοσμένο μήνυμα ανάλογα με το σκορ
+            let message = "";
+            if (percentage === 100) {
+                message = "Εξαιρετικά! Είστε πραγματικός ειδικός στον μύθο της Φθίας και του Αχιλλέα! Μπράβο! 🏆";
+            } else if (percentage >= 80) {
+                message = "Πολύ καλά! Γνωρίζετε εξαιρετικά τον μύθο της Φθίας και του Αχιλλέα! 🌟";
+            } else if (percentage >= 60) {
+                message = "Καλή δουλειά! Έχετε καλή γνώση του μύθου της Φθίας! 👍";
+            } else if (percentage >= 40) {
+                message = "Έχετε κάποιες γνώσεις για τη Φθία και τον Αχιλλέα. Μπορείτε να διαβάσετε ξανά την παρουσίαση για να βελτιωθείτε! 📚";
+            } else {
+                message = "Θα χρειαστεί να μελετήσετε περισσότερο τον μύθο της Φθίας. Η παρουσίαση σίγουρα θα σας βοηθήσει! 🧠";
+            }
+            
+            resultMessageElement.textContent = message;
+        }
+
+        // Προβολή λεπτομερών απαντήσεων
+        function showAnswers() {
+            answersSummary.style.display = 'block';
+            answersList.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const answerItem = document.createElement('div');
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === q.correct;
+                
+                answerItem.className = isCorrect ? 'answer-item correct' : 'answer-item incorrect';
+                
+                const letters = ['Α', 'Β', 'Γ', 'Δ'];
+                const userAnswerText = userAnswer !== null 
+                    ? `${letters[userAnswer]}) ${q.options[userAnswer]}`
+                    : "Δεν απαντήθηκε";
+                    
+                const correctAnswerText = `${letters[q.correct]}) ${q.options[q.correct]}`;
+                
+                const resultIcon = isCorrect ? '✅' : '❌';
+                
+                answerItem.innerHTML = `
+                    <strong style="color: #d4af37;">Ερώτηση ${index + 1}:</strong><br>
+                    ${q.question}<br><br>
+                    <strong>Η απάντησή σου:</strong> ${resultIcon} ${userAnswerText}<br>
+                    <strong>Σωστή απάντηση:</strong> ${correctAnswerText}<br>
+                    <em>${q.explanation}</em>
+                `;
+                
+                answersList.appendChild(answerItem);
+            });
+            
+            // Αλλαγή κειμένου του κουμπιού
+            showAnswersBtn.innerHTML = '<i class="fas fa-times"></i> Κλείσιμο Απαντήσεων';
+            showAnswersBtn.onclick = hideAnswers;
+        }
+
+        // Κλείσιμο λεπτομερών απαντήσεων
+        function hideAnswers() {
+            answersSummary.style.display = 'none';
+            showAnswersBtn.innerHTML = '<i class="fas fa-list"></i> Προβολή Απαντήσεων';
+            showAnswersBtn.onclick = showAnswers;
+        }
+
+        // Επανεκκίνηση του παιχνιδιού
+        function restartGame() {
+            initGame();
+        }
+
+        // Προσθήκη event listeners
+        prevBtn.addEventListener('click', prevQuestion);
+        nextBtn.addEventListener('click', nextQuestion);
+        submitBtn.addEventListener('click', submitAnswers);
+        restartBtn.addEventListener('click', restartGame);
+        showAnswersBtn.addEventListener('click', showAnswers);
+
+        // Αρχικοποίηση κατά τη φόρτωση της σελίδας
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
